@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Business Analytics & BI Suite</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #090d16;
+            --card: #111827;
+            --border: #1f2937;
+            --accent: #38bdf8;
+            --green: #10b981;
+            --purple: #8b5cf6;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px 28px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-size: 21px;
+        }
+
+        .badge {
+            background: rgba(56, 189, 248, .15);
+            color: var(--accent);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .kpi {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .kpi.g {
+            border-left-color: var(--green);
+        }
+
+        .kpi.p {
+            border-left-color: var(--purple);
+        }
+
+        .kpi small {
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .kpi h2 {
+            font-size: 24px;
+            margin: 5px 0;
+        }
+
+        .kpi span {
+            font-size: 12px;
+            color: var(--green);
+        }
+
+        .nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .nav button {
+            background: var(--card);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .nav button.active,
+        .nav button:hover {
+            background: var(--accent);
+            color: #090d16;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .panel h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        input,
+        select {
+            background: #090d16;
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 7px 11px;
+            border-radius: 7px;
+            font-size: 13px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+
+        th,
+        td {
+            padding: 9px 11px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--accent);
+            background: #0f172a;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .chart-box {
+            height: 270px;
+            position: relative;
+        }
+
+        img.report-img {
+            width: 100%;
+            border-radius: 8px;
+            background: #fff;
+            padding: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <h1>E-Commerce Business Analytics &amp; BI Suite</h1>
+            <p style="color:var(--muted);font-size:12.5px;margin-top:3px">End-to-End Python ETL, Statistical Hypothesis
+                Testing, RFM &amp; Cohort Intelligence</p>
+        </div>
+        <span class="badge">LIVE DATASET CONNECTED</span>
+    </header>
+    <div class="kpis" id="kpi-row"></div>
+    <div class="nav">
+        <button class="active" onclick="switchTab('overview',this)">1. Executive Revenue &amp; Margin</button>
+        <button onclick="switchTab('rfm',this)">2. RFM Customer Segmentation</button>
+        <button onclick="switchTab('marketing',this)">3. Marketing ROAS</button>
+        <button onclick="switchTab('cohort',this)">4. Cohort Retention</button>
+        <button onclick="switchTab('stats',this)">5. Statistical Tests (SciPy)</button>
+        <button onclick="switchTab('gallery',this)">6. Matplotlib Reports</button>
+    </div>
+    <div id="tab-overview">
+        <div class="grid-2">
+            <div class="panel">
+                <h3>Category Net Revenue vs Gross Profit ($)</h3>
+                <div class="chart-box"><canvas id="catChart"></canvas></div>
+            </div>
+            <div class="panel">
+                <h3>Category Profit Margin (%)</h3>
+                <div class="chart-box"><canvas id="marginChart"></canvas></div>
+            </div>
+        </div>
+        <div class="panel">
+            <h3>Category Financial Breakdown</h3>
+            <div id="catTable"></div>
+        </div>
+    </div>
+    <div id="tab-rfm" class="hidden">
+        <div class="grid-2">
+            <div class="panel">
+                <h3>RFM Segment Distribution</h3>
+                <div class="chart-box"><canvas id="rfmChart"></canvas></div>
+            </div>
+            <div class="panel">
+                <h3>Customer Search &amp; Segment Filter</h3>
+                <div class="controls"><input type="text" id="rfmSearch" placeholder="Search Customer ID..."
+                        onkeyup="renderRfmTable()"><select id="rfmFilter" onchange="renderRfmTable()">
+                        <option value="ALL">All Segments</option>
+                    </select></div>
+                <div style="max-height:230px;overflow:auto" id="rfmTable"></div>
+            </div>
+        </div>
+    </div>
+    <div id="tab-marketing" class="hidden">
+        <div class="panel" style="margin-bottom:16px">
+            <h3>Campaign Return on Ad Spend (ROAS)</h3>
+            <div class="chart-box"><canvas id="roasChart"></canvas></div>
+        </div>
+        <div class="panel">
+            <h3>Campaign Performance Metrics</h3>
+            <div id="campTable"></div>
+        </div>
+    </div>
+    <div id="tab-cohort" class="hidden">
+        <div class="panel">
+            <h3>Monthly Customer Cohort Retention (%)</h3>
+            <div style="overflow-x:auto" id="cohortTable"></div>
+        </div>
+    </div>
+    <div id="tab-stats" class="hidden">
+        <div class="panel">
+            <h3>SciPy Hypothesis Testing (t-Test, ANOVA, Chi-Square)</h3>
+            <div id="statTable"></div>
+        </div>
+    </div>
+    <div id="tab-gallery" class="hidden">
+        <div class="grid-2" id="imgGallery"></div>
+    </div>
+    <script>
+        let DB = {};
+        fetch('app_data.json').then(r => r.json()).then(d => {
+            DB = d;
+            initDashboard()
+        });
+
+        function initDashboard() {
+            const rev = DB.cat.reduce((s, r) => s + parseFloat(r.net_revenue), 0),
+                gp = DB.cat.reduce((s, r) => s + parseFloat(r.gross_margin), 0),
+                units = DB.cat.reduce((s, r) => s + parseInt(r.units_sold), 0),
+                avgRoas = (DB.camp.reduce((s, r) => s + parseFloat(r.roas || 0), 0) / DB.camp.length).toFixed(2);
+            document.getElementById('kpi-row').innerHTML = `<div class="kpi"><small>Total Net Revenue</small><h2>$${rev.toLocaleString(undefined, { maximumFractionDigits: 0 })}</h2><span>Verified Completed Orders</span></div><div class="kpi g"><small>Total Gross Profit</small><h2>$${gp.toLocaleString(undefined, { maximumFractionDigits: 0 })}</h2><span>${(gp / rev * 100).toFixed(1)}% Overall Gross Margin</span></div><div class="kpi p"><small>Total Units Sold</small><h2>${units.toLocaleString()}</h2><span>Across ${DB.cat.length} Core Categories</span></div><div class="kpi"><small>Average Campaign ROAS</small><h2>${avgRoas}x</h2><span>${DB.camp.length} Marketing Campaigns</span></div>`;
+            new Chart(document.getElementById('catChart'), {
+                type: 'bar',
+                data: {
+                    labels: DB.cat.map(x => x.category),
+                    datasets: [{
+                        label: 'Net Revenue ($)',
+                        data: DB.cat.map(x => x.net_revenue),
+                        backgroundColor: '#38bdf8'
+                    }, {
+                        label: 'Gross Profit ($)',
+                        data: DB.cat.map(x => x.gross_margin),
+                        backgroundColor: '#10b981'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#cbd5e1'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            });
+            new Chart(document.getElementById('marginChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: DB.cat.map(x => `${x.category} (${x.margin_pct}%)`),
+                    datasets: [{
+                        data: DB.cat.map(x => x.margin_pct),
+                        backgroundColor: ['#38bdf8', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#cbd5e1'
+                            }
+                        }
+                    }
+                }
+            });
+            document.getElementById('catTable').innerHTML = buildTable(DB.cat);
+            document.getElementById('campTable').innerHTML = buildTable(DB.camp);
+            document.getElementById('statTable').innerHTML = buildTable(DB.stat);
+            document.getElementById('cohortTable').innerHTML = buildTable(DB.cohort);
+            const segCounts = {};
+            DB.rfm.forEach(r => {
+                segCounts[r.rfm_segment] = (segCounts[r.rfm_segment] || 0) + 1
+            });
+            const sel = document.getElementById('rfmFilter');
+            Object.keys(segCounts).forEach(s => {
+                sel.innerHTML += `<option value="${s}">${s} (${segCounts[s]})</option>`
+            });
+            new Chart(document.getElementById('rfmChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(segCounts),
+                    datasets: [{
+                        label: 'Customers',
+                        data: Object.values(segCounts),
+                        backgroundColor: '#8b5cf6'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            });
+            renderRfmTable();
+            new Chart(document.getElementById('roasChart'), {
+                type: 'bar',
+                data: {
+                    labels: DB.camp.map(x => x.campaign_name || x.campaign_id),
+                    datasets: [{
+                        label: 'ROAS (x)',
+                        data: DB.camp.map(x => x.roas),
+                        backgroundColor: '#10b981'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#cbd5e1'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            });
+            const imgs = ['01_monthly_revenue_trend.png', '02_aov_by_device.png', '03_clv_by_channel.png', '04_category_revenue_margin.png', '05_rfm_segment_revenue.png', '06_cohort_retention_heatmap.png', '07_campaign_roas.png'];
+            document.getElementById('imgGallery').innerHTML = imgs.map(i => `<div class="panel"><h3>${i}</h3><img class="report-img" src="reports/charts/${i}"></div>`).join('');
+        }
+
+        function renderRfmTable() {
+            const q = document.getElementById('rfmSearch').value.toLowerCase(),
+                f = document.getElementById('rfmFilter').value;
+            const rows = DB.rfm.filter(r => (f === 'ALL' || r.rfm_segment === f) && r.customer_id.toLowerCase().includes(q));
+            document.getElementById('rfmTable').innerHTML = buildTable(rows)
+        }
+
+        function buildTable(arr) {
+            if (!arr || !arr.length) return '<p>No records</p>';
+            const cols = Object.keys(arr[0]);
+            return `<table><thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${arr.map(r => `<tr>${cols.map(c => `<td>${r[c]}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+        }
+        function switchTab(id, btn) { ['overview', 'rfm', 'marketing', 'cohort', 'stats', 'gallery'].forEach(t => document.getElementById('tab-' + t).classList.add('hidden')); document.getElementById('tab-' + id).classList.remove('hidden'); document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active')); btn.classList.add('active') }
+    </script>
+</body>
+
+</html>
